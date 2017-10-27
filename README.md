@@ -7,9 +7,9 @@ Ansible script for infrastructure as code.
 Define ip address of target-host in /etc/ansible/hosts.
 
 
-[target-host]
-xxx.xxx.xxx.xxx
-yyy.yyy.yyy.yyy:2201
+[target-host]<br>
+xxx.xxx.xxx.xxx <br>
+yyy.yyy.yyy.yyy:2201 <br>
 
 
 **$ ansible-playbook file.yml**
