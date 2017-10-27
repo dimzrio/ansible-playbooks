@@ -1,0 +1,25 @@
+---
+
+- hosts: target-host
+
+####################
+# NTP Provisioning #
+####################
+  tasks:
+     - name: Install epel release
+       yum:
+          name: epel-release
+          state: latest
+
+     - name: Install basic packages
+       yum:
+          name: "{{ item }}"
+          state: present
+       with_items:
+          - ntp
+          - ntpdate
+
+     - name: setup timezone
+       timezone:
+          name: Asia/Jakarta
+
