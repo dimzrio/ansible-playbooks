@@ -1,0 +1,24 @@
+---
+
+- hosts: target-host
+  tasks:
+  
+  - name: Pull jenkins images
+    command: docker pull jenkins:2.60.2
+
+  - name: Create directory for jenkins
+    file: 
+      path: /docker/jenkins
+      state: directory
+      mode: 0755
+
+  - name: Get docker-compose.yml for jenkins
+    get_url:
+         url: https://github.com/dimastantowi/jenkins-docker-compose/releases/download/v.1.0.0/docker-compose.yml
+         dest: /docker/jenkins/docker-compose.yml
+         mode: 0755
+
+  - name: Run jenkins container 
+    command: docker-compose up -d
+    args:
+      chdir: /docker/jenkins
