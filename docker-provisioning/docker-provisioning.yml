@@ -1,6 +1,6 @@
 ---
 
-- hosts: docker-host
+- hosts: target-host
   tasks:
   
   - name: Install epel release
