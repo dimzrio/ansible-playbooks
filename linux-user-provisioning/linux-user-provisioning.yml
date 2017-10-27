@@ -12,4 +12,3 @@
           path: /etc/sudoers
           insertafter: '^## Allow root to run'
           line: 'devops    ALL=(ALL)       ALL'
-
