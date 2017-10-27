@@ -8,7 +8,7 @@
        name: epel-release
        state: latest
 
-  - name: Docker repo
+  - name: Docker Repo
     get_url: 
          url: https://download.docker.com/linux/centos/docker-ce.repo 
          dest: /etc/yum.repos.d/docker-ce.repo
