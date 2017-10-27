@@ -6,7 +6,6 @@ Ansible script for infrastructure as code.
 <h6> Installation </h6>
 Define ip address of target-host in /etc/ansible/hosts.
 
-
 [target-host]<br>
 xxx.xxx.xxx.xxx <br>
 yyy.yyy.yyy.yyy:2201 <br>
