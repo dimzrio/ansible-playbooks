@@ -1,0 +1,38 @@
+---
+
+- hosts: target-host
+  
+  tasks:
+ 
+    - name: Extract node-exporter
+      unarchive:
+         src: https://github.com/prometheus/node_exporter/releases/download/v0.14.0/node_exporter-0.14.0.linux-amd64.tar.gz
+         dest: /opt
+         remote_src: True
+         exclude:
+             - NOTICE
+             - LICENSE
+      
+    - name: Move directory pga
+      command: mv /opt/node_exporter-0.14.0.linux-amd64 /opt/node-exporter
+
+    - name: Create service node-exporter
+      copy:
+         content: |
+                  [Unit]
+                  Description=Node exporter Start supervise
+                  After=getty.target
+                  [Service]
+                  Type=simple
+                  User=root
+                  Group=root
+                  Restart=always
+                  ExecStart=/opt/node-exporter/node_exporter /dev/ttyS0
+                  TimeoutSec=0
+                  [Install]
+                  WantedBy=multi-user.target
+         dest: /etc/systemd/system/node-exporter.service
+
+    - service:
+         name: node-exporter
+         state: restarted
