@@ -1,0 +1,196 @@
+---
+
+######################
+# Define virtualhost #
+######################
+
+- hosts: target-host
+  vars:
+     server_name: staging.example.com
+     ip_addr: 128.xxx.xxx.xxx
+     fr_conf_name: 99-staging.conf
+     access_log_name: staging.example.com-access.log
+     error_log_name: staging.example.com-error.log
+     slow_log_name: staging.example.com-slow.log
+     www_user: stguser
+
+  tasks:
+
+################
+# Nginx Config #
+################
+       - name: create frwww conf
+         copy:
+             content: |
+                      server {
+                              listen          80;
+                              #listen          443 ssl http2;
+                              server_name     {{server_name}};
+                              access_log      /home/{{www_user}}/logs/nginx/{{access_log_name}}  main;
+                              error_log       /home/{{www_user}}/logs/nginx/{{error_log_name}};
+                              rewrite_log     on;
+
+                              # SSL Config #
+
+                              #if ($scheme = http) {
+                              #        return 301 https://$server_name$request_uri;
+                              #}
+
+                              #ssl_protocols           TLSv1 TLSv1.1 TLSv1.2;
+                              #ssl_certificate         /etc/nginx/ssl/bundle.crt;
+                              #ssl_certificate_key     /etc/nginx/ssl/futuready.key;
+                              #ssl_dhparam             /etc/ssl/dhparam4096.pem;
+                              #ssl_session_timeout     5m;
+                              #ssl_session_cache       shared:TLS:10m;
+                              #ssl_ciphers             EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA512:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:ECDH+AESGCM:ECDH+AES256:DH+AESGCM:DH+AES256:RSA+AESGCM:!aNULL:!eNULL:!LOW:!RC4:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS;
+                              #ssl_prefer_server_ciphers   on;
+                              
+                              index   index.php index.html;
+                              root    /home/{{www_user}}/public_html;
+
+                              location / {
+                                       try_files $uri $uri/ /index.php;
+                              }
+
+                              location ~* \.php$ {
+                                       fastcgi_pass    unix:/home/{{www_user}}/run/php-fpm/{{www_user}}.sock;
+                                       fastcgi_index   index.php;
+                                       fastcgi_param   SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                                       include         fastcgi_params;
+                              }
+                      }
+             dest: /etc/nginx/conf.d/{{fr_conf_name}}
+
+
+##################
+# PHP FPM config #
+##################
+       - name: setup php conf
+         copy:
+             content: |
+                      [{{www_user}}]
+                      user = {{www_user}}
+                      group = {{www_user}}
+                      listen = /home/{{www_user}}/run/php-fpm/{{www_user}}.sock
+                      listen.owner = {{www_user}}
+                      listen.group = {{www_user}}
+                      listen.mode = 0660
+                      listen.acl_users = apache,nginx
+                      listen.allowed_clients = 127.0.0.1
+                      pm = dynamic
+                      pm.max_children = 50
+                      pm.start_servers = 5
+                      pm.min_spare_servers = 5
+                      pm.max_spare_servers = 35
+
+                      access.log = /home/{{www_user}}/logs/php-fpm/{{access_log_name}}
+                      access.format = "%R - %u %t \"%m %r%Q%q\" %s %f %{mili}d %{kilo}M %C%%"
+                      slowlog = /home/{{www_user}}/logs/php-fpm/{{slow_log_name}}
+                      request_slowlog_timeout = 60
+
+                      security.limit_extensions = .php .php3 .php4 .php5
+                      php_flag[display_errors] = off
+                      php_admin_value[error_log] = /home/{{www_user}}/logs/php-fpm/{{error_log_name}}
+                      php_admin_flag[log_errors] = on
+                      php_value[session.save_handler] = files
+                      php_value[session.save_path]    = /tmp
+             dest: /etc/php-fpm.d/{{fr_conf_name}}  
+
+###############
+# Create User #
+###############
+       - name: create user
+         user: name={{www_user}} shell=/bin/bash createhome=yes
+
+       - name: set permission user
+         file:
+             path: /home/{{www_user}}
+             mode: 0711
+
+       - name: Create directory public_html
+         file:
+             path: /home/{{www_user}}/public_html
+             state: directory
+             owner: "{{ item }}"
+             group: "{{ item }}"
+             mode: 0755
+         with_items:
+           - "{{ www_user }}"
+
+       - name: Create directory logs
+         file:
+             path: /home/{{www_user}}/logs
+             state: directory
+             owner: "{{ item }}"
+             group: "{{ item }}"
+             mode: 0755
+         with_items:
+           - "{{ www_user }}"
+
+       - name: Create directory logs nginx
+         file:
+             path: /home/{{www_user}}/logs/nginx
+             state: directory
+             owner: "{{ item }}"
+             group: "{{ item }}"
+             mode: 0755
+         with_items:
+           - "{{ www_user }}"
+
+       - name: Create directory logs php-fpm
+         file:
+             path: /home/{{www_user}}/logs/php-fpm
+             state: directory
+             owner: "{{ item }}"
+             group: "{{ item }}"
+             mode: 0755
+         with_items:
+           - "{{ www_user }}"
+
+       - name: Create directory run
+         file:
+             path: /home/{{www_user}}/run
+             state: directory
+             owner: "{{ item }}"
+             group: "{{ item }}"
+             mode: 0755
+         with_items:
+           - "{{ www_user }}"
+
+       - name: Create directory run php-fpm
+         file:
+             path: /home/{{www_user}}/run/php-fpm
+             state: directory
+             owner: "{{ item }}"
+             group: "{{ item }}"
+             mode: 0755
+         with_items:
+           - "{{ www_user }}"
+
+####################
+# Create Index.php #
+####################
+
+       - name: setup php conf
+         copy:
+             content: |
+                      <?php phpinfo(); ?>                      
+
+             dest: /home/{{www_user}}/public_html/index.php
+             owner: "{{ item }}"
+             group: "{{ item }}"
+             mode: 0755
+         with_items:
+           - "{{ www_user }}"
+
+####################
+# Restart Services #
+####################   
+     
+       - service:
+           name: nginx
+           state: restarted
+
+       - service:
+           name: php-fpm
+           state: restarted
