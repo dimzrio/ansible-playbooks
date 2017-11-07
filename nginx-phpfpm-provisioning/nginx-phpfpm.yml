@@ -1,0 +1,80 @@
+---
+
+- hosts: nginx-host
+
+  tasks:
+
+##################
+# Setup timezone #
+##################
+       - name: setup timezone
+         timezone:
+           name: Asia/Jakarta
+
+######################
+# Nginx Provisioning #
+######################
+       - name: nginx repo
+         copy:
+             content: |
+                      [nginx]
+                      name=nginx repo
+                      baseurl=http://nginx.org/packages/centos/7/$basearch/
+                      gpgcheck=0
+                      enabled=1
+             dest: /etc/yum.repos.d/nginx.repo 
+
+       - name: Update repository
+         yum: name=*
+              state=latest
+
+       - name: Install nginx and pagespeed latest stable
+         yum:
+            name: "{{ item }}"
+            state: present
+         with_items:
+           - nginx-1.12.1-1.el7.ngx
+
+##############################
+# PHP 5.6 + FPM Provisioning #
+##############################
+       - name: Install php and php-fpm
+         yum:
+            name: http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+            state: present
+
+       - name: enable repo 56
+         command: yum-config-manager --enable remi-php56
+
+       - name: Install php 
+         yum:
+            name: "{{ item }}"
+            state: present
+         with_items:
+           - php
+           - php-gd
+           - php-mysql
+           - php-mcrypt
+           - php-fpm
+           - php-opcache
+
+###########
+# PHP ini #
+###########
+       - name: post_max_size php ini
+         replace:
+             dest: /etc/php.ini
+             regexp: 'post_max_size = 8M'
+             replace: 'post_max_size = 200M'
+
+       - name: upload_max_filesize php ini
+         replace:
+             dest: /etc/php.ini
+             regexp: 'upload_max_filesize = 2M'
+             replace: 'upload_max_filesize = 200M'
+
+       - name: timezone php ini
+         replace:
+             dest: /etc/php.ini
+             regexp: ';date.timezone ='
+             replace: 'date.timezone = Asia/Jakarta'
