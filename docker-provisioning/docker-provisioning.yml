@@ -41,6 +41,21 @@
       name: docker-ce
       state: latest
 
+  - name: Install python-pip
+    yum:
+      name: python-pip
+      state: latest
+
+  - name: Upgrade pip
+    pip:
+      name: pip
+      extra_args: --upgrade 
+
+  - name: Install docker-compose
+    pip: 
+      name: docker-compose
+      state: latest
+
   - service:
       name: docker
       state: restarted
