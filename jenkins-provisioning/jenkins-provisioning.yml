@@ -13,27 +13,10 @@
       mode: 0755
 
   - name: Create docker-compose
-    copy:
-        content: |
-                 version: "3"
-
-                 services:
-
-                   jenkins:
-                      container_name: jenkins
-                      image: jenkins:2.60.2
-                      restart: always
-                      ports:
-                        - "8080:8080"
-                        - "50000:50000"
-                      user: root
-                      privileged: true
-                      environment:
-                        - JAVA_OPTS="-Duser.timezone=Asia/Jakarta"
-                      volumes:
-                        - /docker/jenkins/jenkins_home:/var/jenkins_home
-                        - /etc/localtime:/etc/localtime                
-        dest: /docker/jenkins/docker-compose.yml
+    get_url: 
+      url: https://github.com/dimzrio/docker-compose/releases/download/Jenkins-v1.0.0/docker-compose.yml
+      dest: /docker/jenkins/docker-compose.yml
+      mode: 0755
 
   - name: Run jenkins container 
     command: docker-compose up -d
