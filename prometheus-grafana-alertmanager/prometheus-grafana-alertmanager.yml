@@ -14,7 +14,7 @@
 
   - name: Extract pga_docker_compose
     unarchive:
-         src: https://github.com/dimzrio/docker-compose/archive/PGA-v1.0.1.tar.gz
+         src: https://github.com/dimzrio/docker-compose/archive/PGA-v1.0.0.tar.gz
          dest: /tmp/
          remote_src: True
          exclude:
