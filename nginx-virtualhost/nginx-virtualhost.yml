@@ -31,7 +31,6 @@
                               rewrite_log     on;
 
                               # SSL Config #
-
                               #if ($scheme = http) {
                               #        return 301 https://$server_name$request_uri;
                               #}
