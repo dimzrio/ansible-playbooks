@@ -22,7 +22,7 @@
              - LICENSE
 
   - name: Move directory pga
-    command: mv /tmp/docker-compose-PGA-v1.0.1/prometheus-grafana-alertmanager /docker/prometheus_grafana_alertmanager
+    command: mv /tmp/docker-compose-PGA-*/prometheus-grafana-alertmanager /docker/prometheus_grafana_alertmanager
 
   - name: Delete Temp
     shell: rm -rf /tmp/docker-compose-PGA-*
