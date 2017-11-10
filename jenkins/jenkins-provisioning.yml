@@ -12,7 +12,7 @@
       state: directory
       mode: 0755
 
-  - name: Create docker-compose
+  - name: Create docker-composes
     get_url: 
       url: https://github.com/dimzrio/docker-compose/releases/download/Jenkins-v1.0.0/docker-compose.yml
       dest: /docker/jenkins/docker-compose.yml
