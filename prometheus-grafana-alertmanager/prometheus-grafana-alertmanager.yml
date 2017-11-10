@@ -1,0 +1,41 @@
+---
+
+- hosts: target-host
+  tasks:
+  
+  - name: Pull images prometheus v1.7.1
+    command: docker pull prom/prometheus:v1.7.1
+
+  - name: Pull images grafana v4.4.3
+    command: docker pull grafana/grafana:4.4.3
+
+  - name: Pull images alertmanager v0.8.0
+    command: docker pull prom/alertmanager:v0.8.0
+
+  - name: Extract pga_docker_compose
+    unarchive:
+         src: https://github.com/dimzrio/docker-compose/archive/PGA-v1.0.1.tar.gz
+         dest: /tmp/
+         remote_src: True
+         exclude:
+             - README.md
+             - LICENSE
+
+  - name: Move directory pga
+    command: mv /tmp/docker-compose-PGA-v1.0.1/prometheus-grafana-alertmanager /docker/prometheus_grafana_alertmanager
+
+  - name: Delete Temp
+    shell: rm -rf /tmp/docker-compose-PGA-*
+ 
+  - name: Set permission prometheus_grafana_alertmanager  
+    file:
+       path: /docker/prometheus_grafana_alertmanager
+       mode: 0755
+       state: directory
+       recurse: yes
+
+  - name: Run container 
+    command: docker-compose up -d
+    args:
+      chdir: /docker/prometheus_grafana_alertmanager
+
