@@ -1,4 +1,6 @@
-- name: PostgreSQL ping dbsrv server using not default credentials and ssl
+---
+- name: Configure all servers.
+  hosts: all
   community.postgresql.postgresql_ping:
     db: example
     login_host: 10.11.0.3
