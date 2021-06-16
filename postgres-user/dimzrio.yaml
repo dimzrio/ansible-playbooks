@@ -1,0 +1,31 @@
+- name: Tasks to download file
+  hosts: localhost
+  vars:
+    # Define owner
+    host: '10.11.0.3'
+    user: 'postgres'
+    passwd: 'example'
+  tasks:
+    - name: Create user dimzrio
+      community.postgresql.postgresql_user:
+        login_host: "{{ host }}"
+        login_user: "{{ user }}"
+        login_password: "{{ passwd }}"
+        name: dimzrio
+        password: mysupersecretword
+        expires: infinity
+
+    - name: Create db dimzrio_db
+      community.postgresql.postgresql_db:
+        login_host: "{{ host }}"
+        login_user: "{{ user }}"
+        login_password: "{{ passwd }}"
+        name: dimzrio_db
+
+    - name: Create table dimzrio_tables on db dimzrio_db
+      community.postgresql.postgresql_table:
+        login_host: "{{ host }}"
+        login_user: "{{ user }}"
+        login_password: "{{ passwd }}"
+        db: dimzrio_db
+        name: dimzrio_tables
