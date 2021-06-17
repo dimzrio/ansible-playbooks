@@ -1,10 +1,8 @@
 - name: Tasks to download file
   hosts: localhost
-  vars:
-    # Define owner
-    host: '10.11.0.3'
-    user: 'postgres'
-    passwd: 'example'
+  vars_files:
+    - ./secret.yml
+
   tasks:
     - name: Create user dimzrio
       community.postgresql.postgresql_user:
@@ -12,7 +10,7 @@
         login_user: "{{ user }}"
         login_password: "{{ passwd }}"
         name: dimzrio
-        password: mysupersecretword
+        password: "{{ dimzrio_passwd }}"
         expires: infinity
 
     - name: Create db dimzrio_db
